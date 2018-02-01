@@ -36,13 +36,9 @@ class TimeBetweenTimeStamps(generics.ListAPIView):
         cursor = connection.cursor()
         cursor.execute(
             """SELECT (strftime('%s',max(ts)) - strftime('%s', min(ts))) As seconds FROM api_farmdata""")
-        rows = cursor.fetchall()
-        result = []
-        keys = ('seconds',)
-        for row in rows:
-            result.append(dict(zip(keys, row)))
-        json_data = json.dumps(result)
-        return HttpResponse(json_data, content_type="application/json")
+        rows = cursor.fetchone()
+        content = {'seconds_between_dates': rows}
+        return Response(content)
 
 
 class AverageMessages(generics.ListAPIView):
