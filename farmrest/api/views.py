@@ -75,3 +75,21 @@ class MostCanMessages(generics.ListAPIView):
         rows = cursor.fetchone()
         content = {'most_can_messages': rows}
         return Response(content)
+
+
+class LeastCanMessages(generics.ListAPIView):
+    """The first ts (timestamp) that contains the least CAN messages"""
+    renderer_classes = (JSONRenderer,)
+
+    def get(self, request, format=None):
+        cursor = connection.cursor()
+        cursor.execute(
+            """select ts, count(*) seconddata  from ( 
+               select message_id, ts, count(*) seconddata FROM api_farmdata WHERE message_id != "" group by message_id, ts order by seconddata asc
+               ) as a 
+               group by ts
+               order by seconddata asc
+              limit 1""")
+        rows = cursor.fetchone()
+        content = {'most_can_messages': rows}
+        return Response(content)
